@@ -2,9 +2,54 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
+const CountryView = ({ country }) =>
+{
+  const langs = Object.values(country.languages);
+  return(
+    <div>
+          <h1>{country.name.common}</h1>
+          <p>Capital: {country.capital}</p>
+          <p>Area: {country.area}</p>
+          <h3>Languages</h3>
+          <ul>
+            {langs.map(lang => <li key={lang}>{lang}</li>)}
+          </ul>
+          <div>
+            <img 
+              src={country.flags.png}
+              alt={`flag of ${country.name.common}`}
+              width="180"
+              height="120"
+            />
+          </div>
+        </div>
+  );
+}
+
+const CountryList = ({ result, countryToView, setCountryView }) =>
+{
+  if(countryToView === '')
+  {
+    return(
+      <ul>
+        {result.map(country => <li key={country.name.common}>
+          {country.name.common}
+          <button onClick={() => setCountryView(country.name.common)}>show</button>
+          </li>)}
+      </ul>
+    );
+  }else
+  {
+    return(
+      <CountryView country={countryToView}/>
+    );
+  }
+}
+
 function App() {
   const [countrySearch, setCountrySearch] = useState('');
   const [countries, setCountries] = useState([]);
+  const [countryToView, setCountryToView] = useState('');
 
   const hook = () =>
   {
@@ -19,6 +64,20 @@ function App() {
   const onCountrySearchChanged = (e) =>
   {
     setCountrySearch(e.target.value);
+    setCountryToView('');
+  }
+
+  const setCountryView = (name) =>
+  {
+    
+    let countryData = '';
+    axios.get(`https://restcountries.com/v3.1/name/${name}?fullText=true`)
+    .then(res => {
+      countryData = res.data[0];
+      setCountryToView(countryData);
+      //console.log(countryData);
+    });
+    //console.log("country");
   }
 
   const searchCountries = (filterName) =>
@@ -27,21 +86,8 @@ function App() {
     if(result.length === 1)
     {
       const res = result[0];
-      const langs = Object.values(res.languages);
       return(
-        <div>
-          <h1>{res.name.common}</h1>
-          <p>Capital: {res.capital}</p>
-          <p>Area: {res.area}</p>
-          <h3>Languages</h3>
-          <ul>
-            {langs.map(lang => <li key={lang}>{lang}</li>)}
-          </ul>
-          <div>
-            <p>{res.flag}</p>
-          </div>
-        </div>
-        
+        <CountryView country={res}/>
       );
     }else if(result.length > 10)
     {
@@ -56,9 +102,9 @@ function App() {
     }else
     {
       return(
-        <ul>
-          {result.map(country => <li key={country.name.common}>{country.name.common}</li>)}
-        </ul>
+        <CountryList result={result}
+          countryToView={countryToView}
+          setCountryView={setCountryView}/>
       );
     }
   }
