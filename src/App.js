@@ -31,12 +31,15 @@ const CountryList = ({ result, countryToView, setCountryView }) =>
   if(countryToView === '')
   {
     return(
-      <ul>
-        {result.map(country => <li key={country.name.common}>
-          {country.name.common}
-          <button onClick={() => setCountryView(country.name.common)}>show</button>
-          </li>)}
-      </ul>
+      <div>
+        <h2>Countries Found</h2>
+        <ul>
+          {result.map(country => <li key={country.name.common}>
+            {country.name.common}
+            <button onClick={() => setCountryView(country.name.common)}>show</button>
+            </li>)}
+        </ul>
+      </div>
     );
   }else
   {
@@ -117,7 +120,6 @@ function App() {
       </div>
 
       <div>
-        <h2>Countries Found</h2>
         {searchCountries(countrySearch)}
       </div>
     </div>
